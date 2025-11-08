@@ -178,7 +178,7 @@ let CURRENT_DATA = null; // will hold loaded /data/{country}.json
 /* ---------- Load country index (data/index.json) ---------- */
 async function loadCountryIndex(){
   try {
-    const resp = await fetch('/data/index.json', {cache: 'no-store'});
+    const resp = await fetch('data/index.json', {cache: 'no-store'});
     if (!resp.ok) throw new Error('index.json not found');
     const list = await resp.json();
     populateCountrySelect(list);
@@ -214,7 +214,7 @@ function populateCountrySelect(list){
 async function loadCountryData(code){
   if (!code) return null;
   try {
-    const resp = await fetch(`/data/${code}.json`, {cache: 'no-store'});
+    const resp = await fetch(`data/${code}.json`, {cache: 'no-store'});
     if (!resp.ok) throw new Error(`Country data /data/${code}.json not found (HTTP ${resp.status})`);
     const json = await resp.json();
     CURRENT_DATA = json;
@@ -396,10 +396,10 @@ function renderResults(breakdown, ppy){
 
   let html = `<div><b>Gross (annual):</b> ${fmt(Math.round(breakdown.grossAnnual))}</div>`;
   html += `<div><b>Pre-tax deductions (annual):</b> ${fmt(Math.round(breakdown.preTaxAnnual))}</div>`;
-  html += `<div style="margin-top:8px"><b>Federal / National tax (annual):</b> ${fmt(Math.round(breakdown.federalTax))}</div>`;
+  html += `<div style=\"margin-top:8px\"><b>Federal / National tax (annual):</b> ${fmt(Math.round(breakdown.federalTax))}</div>`;
 
   if (breakdown.contributions.length){
-    html += `<div style="margin-top:8px"><b>Social & contributions (annual):</b><div style="margin-left:8px">`;
+    html += `<div style=\"margin-top:8px\"><b>Social & contributions (annual):</b><div style=\"margin-left:8px\">`;
     for (const c of breakdown.contributions){
       html += `<div>${c.label}: ${fmt(Math.round(c.annual))} (per period: ${fmt(Math.round(c.perPeriod))})</div>`;
     }
@@ -407,29 +407,29 @@ function renderResults(breakdown, ppy){
   }
 
   if (breakdown.subnational.length){
-    html += `<div style="margin-top:8px"><b>Subnational:</b><div style="margin-left:8px">`;
+    html += `<div style=\"margin-top:8px\"><b>Subnational:</b><div style=\"margin-left:8px\">`;
     for (const s of breakdown.subnational){
       html += `<div>${s.label}: ${fmt(Math.round(s.annual))}</div>`;
     }
     html += `</div></div>`;
   }
 
-  html += `<div style="margin-top:8px"><b>Other deductions:</b><div style="margin-left:8px">`;
+  html += `<div style=\"margin-top:8px\"><b>Other deductions:</b><div style=\"margin-left:8px\">`;
   for (const o of breakdown.other) html += `<div>${o.label}: ${fmt(Math.round(o.annual))}</div>`;
   html += `</div></div>`;
 
-  html += `<div style="margin-top:12px"><b>Total deductions (annual):</b> ${fmt(Math.round(breakdown.totalDeductionsAnnual))}</div>`;
-  html += `<div><b>Net pay (annual):</b> ${fmt(Math.round(breakdown.netAnnual))} &nbsp; <small class="small-muted">(per period: ${fmt(Math.round(breakdown.netPerPeriod))})</small></div>`;
+  html += `<div style=\"margin-top:12px\"><b>Total deductions (annual):</b> ${fmt(Math.round(breakdown.totalDeductionsAnnual))}</div>`;
+  html += `<div><b>Net pay (annual):</b> ${fmt(Math.round(breakdown.netAnnual))} &nbsp; <small class=\"small-muted\">(per period: ${fmt(Math.round(breakdown.netPerPeriod))})</small></div>`;
 
   if (breakdown.employer.show){
-    html += `<div style="margin-top:10px"><b>Employer cost (annual):</b> ${fmt(Math.round(breakdown.employer.total))}`;
-    for (const l of breakdown.employer.lines) html += `<div style="margin-left:8px">${l.label}: ${fmt(Math.round(l.annual))}</div>`;
+    html += `<div style=\"margin-top:10px\"><b>Employer cost (annual):</b> ${fmt(Math.round(breakdown.employer.total))}`;
+    for (const l of breakdown.employer.lines) html += `<div style=\"margin-left:8px\">${l.label}: ${fmt(Math.round(l.annual))}</div>`;
     html += `</div>`;
   }
 
   document.getElementById('breakdown').innerHTML = html;
 
-  const sList = (breakdown.sources||[]).map(s => `<a class="link" href="${s.source_url}" target="_blank">${s.document_title}</a>`).join(' • ');
+  const sList = (breakdown.sources||[]).map(s => `<a class=\"link\" href=\"${s.source_url}\" target=\"_blank\">${s.document_title}</a>`).join(' • ');
   document.getElementById('sourcesList').innerHTML = sList || '—';
 
   document.getElementById('dataDump').textContent = JSON.stringify(CURRENT_DATA, null, 2);
@@ -469,7 +469,7 @@ function exportCSV(){
   rows.push(['Country', name]);
   rows.push(['Gross (per period)', grossEl.value, 'frequency', frequencyEl.value]);
   rows.push(['Breakdown', document.getElementById('breakdown').innerText.replace(/\n/g,' | ')]);
-  const csv = rows.map(r => r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const csv = rows.map(r => r.map(c=>`"` + String(c).replace(/"/g,'""') + `"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'paycheck.csv'; a.click();
